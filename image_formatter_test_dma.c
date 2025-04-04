@@ -173,6 +173,11 @@ void start_dma_transfer(void* framebuffer, int size_bytes) {
         printf("Erreur DMA : échec du transfert.\n");
 }
 
+void start_dma_transfer_test(void* framebuffer, int size_bytes) {
+    uint32_t* data = (uint32_t*)framebuffer;
+    printf("DMA send: 0x%08X (%d bytes)\n", data[0], size_bytes);
+}
+
 
 // convertir un pixel RGB en 32 bits (9 bits pour RGB, le reste à 0)
 /*
@@ -199,6 +204,17 @@ void send_framebuffer_in_batches(RGB_Point * framebuffer) {
     for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
         batch[0] = encode_rgb_to_32bit(framebuffer[i]);
         start_dma_transfer(batch, sizeof(batch));
+        //sleep(1);
+    }
+} 
+
+void send_framebuffer_in_batches_test(RGB_Point * framebuffer) {
+
+    uint32_t batch[1];  // batch 32 bits
+
+    for (int i = 0; i < 5; i++) {
+        batch[0] = encode_rgb_to_32bit(framebuffer[i]);
+        start_dma_transfer_test(batch, sizeof(batch));
         //sleep(1);
     }
 } 
@@ -242,7 +258,19 @@ int main() {
     // ============== DMA 
     // Appel de la fonction pour démarrer le transfert DMA
     int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
-    send_framebuffer_in_batches(framebuffer);
+    //send_framebuffer_in_batches(framebuffer);
+
+
+    RGB_Point framebuffer_test[5] = {
+        {0, 0, 0},
+        {255, 0, 0},
+        {0, 255, 0},
+        {0, 0, 255},
+        {255, 255, 255}
+    };
+
+
+    send_framebuffer_in_batches_test(framebuffer_test);
 
 
     return 0;
