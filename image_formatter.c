@@ -152,7 +152,9 @@ void print_framebuffer_diagramme(RGB_Point framebuffer[VGA_HEIGHT * VGA_WIDTH]) 
     }
 }
 
-// usage du DMA
+// ------------------------ DMA ------------------------
+
+// usage du DMA, definition adresses dans le config.h
 void start_dma_transfer(void* framebuffer, int size_bytes) {
     DMA_MM2S_DMACR = 0x4;                      // reset DMA
     DMA_MM2S_DMACR = 0x1;                      // enable MM2S
@@ -208,9 +210,9 @@ int main() {
     print_framebuffer_diagramme(framebuffer); //print à partir du buffer
     //print_framebuffer(framebuffer); //print à partir de la matrice
 
-    printf("E\n");
+    printf("Test DMA\n");
 
-    // DMA
+    // ============== DMA 
     // Appel de la fonction pour démarrer le transfert DMA
     int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
     start_dma_transfer(framebuffer, framebuffer_size);
