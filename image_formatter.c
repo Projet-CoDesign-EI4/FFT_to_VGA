@@ -13,6 +13,7 @@
 
 void initialize_vga_matrix(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]) {
 
+    // Tout en noire de base
     for (int y = 0; y < VGA_HEIGHT; y++) {
         for (int x = 0; x < VGA_WIDTH; x++) {
             vga_matrix[y][x] = (RGB_Point){0, 0, 0};
@@ -79,7 +80,8 @@ void print_vga_matrix(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]) {
 }
 
 // revoir cette fonction pour s'assurer que ça marche 
-/*Le but est de reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
+/*
+Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
 */
 
 void adjust_fft_points(FFT_Point fft_data[NUM_FFT_POINTS], int adjusted_points[NUM_FFT_POINTS][2], int freq_echantillonnage) {
@@ -184,10 +186,11 @@ int main() {
 
     // ============ ENTREE, liste de coordonnées x,y :
     FFT_Point fft_data[NUM_FFT_POINTS] = { 
-        { 0, 12 }, { 1, 8 }, { 6, 23 }, { 9, 34 }, { 12, 56 },
-        { 15, 7 }, { 20, 41 }, { 21, 50 }, { 22, 47 }, { 27, 42 },
-        { 30, 9 }, { 33, 58 }, { 36, 27 }, { 39, 38 }, { 42, 19 },
-        { 45, 20 }, { 46, 22 }, { 61, 11 }, { 67, 40 }
+        { 0, 12 }, { 1, 8 }, { 8, 23 }, { 9, 34 }, { 11, 28 },
+        { 13, 7 }, { 20, 41 }, { 21, 50 }, { 22, 47 }, { 27, 9 },
+        { 29, 14 }, { 30, 17 }, { 33, 27 }, { 39, 21 }, { 42, 19 },
+        { 45, 20 }, { 46, 22 }, { 54, 11 }, { 55, 20 }, { 61, 11 }, 
+        { 67, 7 }
     }; 
     
     // ------------ PRE-SORTIE, matrice vga :

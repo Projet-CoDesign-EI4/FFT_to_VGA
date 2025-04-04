@@ -2,7 +2,7 @@
 
 #define VGA_WIDTH  80   // Largeur VGA (ex: 800)
 #define VGA_HEIGHT 60   // Hauteur VGA (ex: 600)
-#define NUM_FFT_POINTS 20  // Nombre de points FFT simulés
+#define NUM_FFT_POINTS 21  // Nombre de points FFT simulés
 
 #define BORDER_SIZE 2   // Épaisseur de la bordure qui est modifiable ici
 
