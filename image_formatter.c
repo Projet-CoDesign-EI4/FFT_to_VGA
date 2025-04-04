@@ -3,8 +3,11 @@
 #include "fft_data.h"
 #include "config.h"
 
-// ===================== FONCTIONS =====================
+#include <stdint.h> 
+#include <stddef.h> 
 
+
+// ===================== FONCTIONS =====================
 
 // Initialisation du fond noir avec axes blancs
 
@@ -49,7 +52,6 @@ void update_vga_display(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH], FFT_Point f
     }
 }
 
-
 // Transformer notre matrice 2D en un tableau 1D pour la VGA
 
 void convert_matrix_to_buffer(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH], RGB_Point framebuffer[VGA_HEIGHT * VGA_WIDTH]) {
@@ -60,7 +62,6 @@ void convert_matrix_to_buffer(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH], RGB_P
         }
     }
 }
-
 
 // ------------------- Affichage terminal -------------------
 
@@ -76,7 +77,6 @@ void print_vga_matrix(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]) {
         printf("\n");
     }
 }
-
 
 // revoir cette fonction pour s'assurer que ça marche 
 /*Le but est de reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
@@ -123,7 +123,6 @@ void display_vga_matrix_diagramme(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]) {
     }
 }
 
-
 // buffer dans terminal
 
 void print_framebuffer(RGB_Point framebuffer[VGA_HEIGHT * VGA_WIDTH]) {
@@ -147,12 +146,34 @@ void print_framebuffer_diagramme(RGB_Point framebuffer[VGA_HEIGHT * VGA_WIDTH]) 
             else if (p.r == AXIS_COLOR_R && p.g == AXIS_COLOR_G && p.b == AXIS_COLOR_B)
                 printf("+");  // Axes en blanc
             else
-                printf(" ");  // Fond noir
+                printf(" ");  // Fond noir 
         }
         printf("\n");
     }
 }
 
+// usage du DMA
+void start_dma_transfer(void* framebuffer, int size_bytes) {
+    DMA_MM2S_DMACR = 0x4;                      // reset DMA
+    DMA_MM2S_DMACR = 0x1;                      // enable MM2S
+    DMA_MM2S_SA = (uintptr_t)framebuffer;       // source addr (cast avec intptr_t pour éviter warning, architecture 64bits)
+    DMA_MM2S_LENGTH = size_bytes;              // taille
+
+    // Vérif démarrage DMA
+    while ((DMA_MM2S_DMASR & 0x1) == 0) {  // bit de démarrage 
+        // Attente active (polling) jusqu'à ce que le DMA commence
+    }
+
+    // Vérif fin transfert
+    while ((DMA_MM2S_DMASR & 0x2) == 0) {  // bit de fin de transfert
+        // Attente active (polling) jusqu'à ce que le DMA termine
+    }
+
+    // Vérif erreur 
+    if (DMA_MM2S_DMASR & 0x4) {  // (bit d'erreur dans le registre DMASR)
+        printf("Erreur DMA : échec du transfert.\n");
+    }
+}
 
 
 // =============================== MAIN ===============================
@@ -184,9 +205,15 @@ int main() {
     convert_matrix_to_buffer( vga_matrix, framebuffer);
 
 
-    print_framebuffer_diagramme(framebuffer);
-    //print_framebuffer(framebuffer);
+    print_framebuffer_diagramme(framebuffer); //print à partir du buffer
+    //print_framebuffer(framebuffer); //print à partir de la matrice
 
+    printf("E\n");
+
+    // DMA
+    // Appel de la fonction pour démarrer le transfert DMA
+    int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
+    start_dma_transfer(framebuffer, framebuffer_size);
 
     return 0;
 }

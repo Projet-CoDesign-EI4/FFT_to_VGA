@@ -21,3 +21,10 @@
 #define freq_echantillonage 1000 // à voir
 
 
+// ============ Config des adresses DMA ===============
+
+#define DMA_BASE_ADDR     0x40400000  // <==========================changer en fonction du mapping
+#define DMA_MM2S_DMACR    (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x00))
+#define DMA_MM2S_DMASR    (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x04))
+#define DMA_MM2S_SA       (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x18))
+#define DMA_MM2S_LENGTH   (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x28))
