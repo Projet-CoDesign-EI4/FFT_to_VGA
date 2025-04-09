@@ -92,37 +92,26 @@ Reformater les données d'entrée en fonction de la frequence d'échantillonage 
 */
 
 // Fonction qui ajuste les points FFT pour les adapter à l'écran VGA
-int** adjust_fft_points(FFT_Point fft_data[NUM_FFT_POINTS], int freq_echantillonnage) {
-    // Allouer dynamiquement le tableau de points ajustés
-    int** adjusted_points = malloc(NUM_FFT_POINTS * sizeof(int*));
-    for (int i = 0; i < NUM_FFT_POINTS; i++) {
-        adjusted_points[i] = malloc(2 * sizeof(int)); // Pour X et Y
-    }
-
-    // Empêcher la division par zéro et calcul du facteur de pixel pour la fréquence
-    float pixel_per_frequency = (freq_echantillonnage < 1600) ? 1.0 : (float)freq_echantillonnage / 1600.0;
-
-    // Trouver les limites maximales de X et Y dans les données FFT
+void adjust_fft_points(FFT_Point fft_data[NUM_FFT_POINTS], int freq_echantillonnage) {
+    // Trouver les valeurs maximales de X et Y dans fft_data pour effectuer l'ajustement proportionnel
     int max_x = 0, max_y = 0;
     for (int i = 0; i < NUM_FFT_POINTS; i++) {
         if (fft_data[i].x > max_x) max_x = fft_data[i].x;
         if (fft_data[i].y > max_y) max_y = fft_data[i].y;
     }
 
+    // Ajustement des points en X et Y
     for (int i = 0; i < NUM_FFT_POINTS; i++) {
-        // Calcul de la position en X sur l'axe des fréquences (axe X de 0 à VGA_WIDTH - 1)
-        int adjusted_x = (int)((float)fft_data[i].x / max_x * (VGA_WIDTH - 1)); // Mise à l'échelle proportionnelle
+        // Ajuster les coordonnées en X et Y pour tenir dans la taille de l'écran
+        int adjusted_x = (int)((float)fft_data[i].x / max_x * (VGA_WIDTH - 1));
+        int adjusted_y = (int)((float)fft_data[i].y / max_y * (VGA_HEIGHT - 1));
 
-        // Calcul de la position en Y sur l'axe (axe Y de 0 à VGA_HEIGHT - 1)
-        int adjusted_y = (int)((float)fft_data[i].y / max_y * (VGA_HEIGHT - 1)); // Mise à l'échelle proportionnelle
-
-        // Stockage du point ajusté dans le tableau
-        adjusted_points[i][0] = adjusted_x;
-        adjusted_points[i][1] = adjusted_y;
+        // Mettre à jour directement fft_data avec les nouvelles coordonnées ajustées
+        fft_data[i].x = adjusted_x;
+        fft_data[i].y = adjusted_y;
     }
-
-    return adjusted_points;  // Retourne le tableau ajusté
 }
+
 
 // lire la matrice en diagramme
 
@@ -266,21 +255,14 @@ int main() {
         FFT_Point fft_data[NUM_FFT_POINTS];
         load_fft_data_from_memory((uint32_t*)FFT_DATA_ADDRESS, fft_data); // cast necessaire
 
-        // [DEBUG FUTUR] Afficher les données pour vérifier
-        for (int i = 0; i < NUM_FFT_POINTS; i++) {
-            printf("fft_data[%d] - x: %d, y: %d\n", i, fft_data[i].x, fft_data[i].y);
-        }
-
         // Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
-        int** adjusted_points = adjust_fft_points(fft_data, freq_echantillonage);
+        adjust_fft_points(fft_data, freq_echantillonage);
 
         // Ajoute les points FFT avec des colonnes les reliant à l'axe X
         update_vga_display(vga_matrix,fft_data);
 
         // Transformer notre matrice 2D en un tableau 1D pour la VGA
         convert_matrix_to_buffer( vga_matrix, framebuffer);
-
-        printf("Envoi DMA\n");
 
         // ============== DMA 
         // Appel de la fonction pour démarrer le transfert DMA
