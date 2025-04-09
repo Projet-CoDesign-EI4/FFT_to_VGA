@@ -181,8 +181,8 @@ void start_dma_transfer_test(void* framebuffer, int size_bytes) {
 
 // convertir un pixel RGB en 32 bits (9 bits pour RGB, le reste à 0)
 /*
-Bits 31-12    | Bits 11-8 | Bits 7-4 | Bits 3-0
-   (0)        |    R      |    G     |    B
+Bits 31-12  | Bits 11-8 | Bits 7-4 | Bits 3-0
+   (0)      |    R      |    G     |    B
 */
 uint32_t encode_rgb_to_32bit(RGB_Point pixel) {
     uint8_t r = pixel.r & 0xF;  // 4 bits
@@ -218,6 +218,32 @@ void send_framebuffer_in_batches_test(RGB_Point * framebuffer) {
         //sleep(1);
     }
 } 
+
+
+// Test couleur
+
+const char* approx_rgb_color_4bit(int r, int g, int b) {
+    if (r <= 2 && g <= 2 && b <= 2) return "noir";
+    if (r >= 12 && g >= 12 && b >= 12) return "blanc";
+    
+    if (r >= 11 && g <= 4 && b <= 4) return "rouge";
+    if (r <= 4 && g >= 11 && b <= 4) return "vert";
+    if (r <= 4 && g <= 4 && b >= 11) return "bleu";
+
+    if (r >= 10 && g >= 10 && b <= 4) return "jaune";
+    if (r <= 4 && g >= 10 && b >= 10) return "cyan";
+    if (r >= 10 && g <= 4 && b >= 10) return "magenta";
+
+    if (r >= 5 && r <= 10 && g >= 5 && g <= 10 && b >= 5 && b <= 10) return "gris";
+
+    if (g > r && g > b) return "dominante verte";
+    if (r > g && r > b) return "dominante rouge";
+    if (b > r && b > g) return "dominante bleue";
+
+    return "couleur indéfinie";
+}
+
+
 
 
 // =============================== MAIN ===============================
@@ -263,12 +289,35 @@ int main() {
 
     RGB_Point framebuffer_test[5] = {
         {0, 0, 0},
-        {255, 0, 0},
+        {1, 1, 1},
         {0, 255, 0},
         {0, 0, 255},
-        {255, 255, 255}
+        {101, 200, 27}
     };
 
+    // RGB_Point framebuffer_test[5] = {
+    //     {0, 0, 0},
+    //     {255, 0, 0},
+    //     {0, 255, 0},
+    //     {0, 0, 255},
+    //     {255, 255, 255}
+    // };
+
+    /* A visualiser : 
+    Test DMA
+    DMA send: 0x00000000 (4 bytes)
+    DMA send: 0x00000F00 (4 bytes)
+    DMA send: 0x000000F0 (4 bytes)
+    DMA send: 0x0000000F (4 bytes)
+    DMA send: 0x00000FFF (4 bytes)
+    */
+
+    int r4 = 255 / 16;
+    int g4 = 0 / 16;
+    int b4 = 0 / 16;
+
+
+    printf("Couleur : %s\n", approx_rgb_color_4bit(r4, g4, b4)); // affiche "rouge"
 
     send_framebuffer_in_batches_test(framebuffer_test);
 

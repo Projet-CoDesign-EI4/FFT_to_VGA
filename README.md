@@ -9,7 +9,7 @@ Le programme reçoit des points FFT (amplitude/fréquence) en entrée, les trans
 
 | Fichier                          | Rôle                                                                 |
 |----------------------------------|----------------------------------------------------------------------|
-| `image_formatter.c`              | Programme principal : traitement, affichage, DMA                     |
+| `image_formatter.c`              | Programme principal : envoi réellement au DMA                        |
 | `image_formatter_test_dma.c`     | Programme de test en terminal (simulation du DMA)                    |
 | `fft_data.h`                     | Structures des points FFT et RGB                                     |
 | `config.h`                       | Paramètres VGA (dimensions, couleurs, adresses DMA, etc.)            |

@@ -81,7 +81,7 @@ void print_vga_matrix(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]) {
     }
 }
 
-// revoir cette fonction pour s'assurer que ça marche 
+
 /*
 Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
 */
@@ -208,6 +208,7 @@ void send_framebuffer_in_batches(RGB_Point * framebuffer) {
 
 int main() {
 
+
     // ============ ENTREE, liste de coordonnées x,y :
     FFT_Point fft_data[NUM_FFT_POINTS] = { 
         { 0, 12 }, { 1, 8 }, { 8, 23 }, { 9, 34 }, { 11, 28 },
@@ -218,21 +219,27 @@ int main() {
     }; 
     
     // ------------ PRE-SORTIE, matrice vga :
-    RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH];
+    RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]; 
 
     // ============ SORTIE, buffer 1D pour afficher
     RGB_Point framebuffer[VGA_HEIGHT * VGA_WIDTH];
 
 
+
+    // Initialisation du fond noir avec axes blancs
     initialize_vga_matrix(vga_matrix);
 
+    // Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
     int adjusted_points[NUM_FFT_POINTS][2];
     adjust_fft_points(fft_data, adjusted_points, freq_echantillonage);
 
+    // Ajoute les points FFT avec des colonnes les reliant à l'axe X
     update_vga_display(vga_matrix,fft_data);
 
+    // Transformer notre matrice 2D en un tableau 1D pour la VGA
     convert_matrix_to_buffer( vga_matrix, framebuffer);
 
+    // ------------------- Affichage terminal -------------------
 
     print_framebuffer_diagramme(framebuffer); //print à partir du buffer
     //print_framebuffer(framebuffer); //print à partir de la matrice
@@ -241,8 +248,13 @@ int main() {
 
     // ============== DMA 
     // Appel de la fonction pour démarrer le transfert DMA
+    // convertir un pixel RGB en 32 bits (9 bits pour RGB, le reste à 0)
+    /*
+    Bits 31-12    | Bits 11-8 | Bits 7-4 | Bits 3-0
+         (0)      |    R      |    G     |    B
+    */
     int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
-    send_framebuffer_in_batches(framebuffer);
+    send_framebuffer_in_batches(framebuffer); // envoi en batches
 
 
     return 0;
