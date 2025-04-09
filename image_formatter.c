@@ -234,6 +234,16 @@ void load_fft_data_from_memory(uint32_t* base_address, FFT_Point fft_data[NUM_FF
     }
 }
 
+// Fonction pour remplir un framebuffer de pixels blancs
+void fill_framebuffer_with_white(RGB_Point framebuffer[VGA_HEIGHT * VGA_WIDTH]) {
+    for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
+        framebuffer[i].r = 15;  // Composante rouge (maximale, 4 bits)
+        framebuffer[i].g = 15;  // Composante verte (maximale, 4 bits)
+        framebuffer[i].b = 15;  // Composante bleue (maximale, 4 bits)
+    }
+}
+
+
 
 // =============================== MAIN ===============================
 
@@ -293,7 +303,13 @@ int main() {
             (0)      |    R      |    G     |    B
         */
         int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
-        send_framebuffer_in_batches(framebuffer); // envoi en batches
+
+        //send_framebuffer_in_batches(framebuffer); // envoi en batches
+
+        int framebuffer_size = VGA_HEIGHT * VGA_WIDTH;
+        RGB_Point framebuffer_test[framebuffer_size];
+        fill_framebuffer_with_white(framebuffer_test);
+        send_framebuffer_in_batches(framebuffer_test); // envoi en batches
 
         sleep(1);
 
