@@ -312,9 +312,9 @@ int main() {
     DMA send: 0x00000FFF (4 bytes)
     */
 
-    int r4 = 255 / 16;
-    int g4 = 0 / 16;
-    int b4 = 0 / 16;
+    int r4 = 240 / 16;
+    int g4 = 41 / 16;
+    int b4 = 200 / 16;
 
 
     printf("Couleur : %s\n", approx_rgb_color_4bit(r4, g4, b4)); // affiche "rouge"

@@ -66,6 +66,11 @@ void convert_matrix_to_buffer(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH], RGB_P
     }
 }
 
+// Renvoie un pointeur vers le tableau de FFT_Point stocké à FFT_DATA_ADDRESS
+FFT_Point* get_fft_data(void) {
+    return (FFT_Point*) FFT_DATA_ADDRESS;
+}
+
 // ------------------- Affichage terminal -------------------
 
 // matrice dans terminal
@@ -199,7 +204,7 @@ void send_framebuffer_in_batches(RGB_Point * framebuffer) {
     for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
         batch[0] = encode_rgb_to_32bit(framebuffer[i]);
         start_dma_transfer(batch, sizeof(batch));
-        //sleep(1);
+        sleep(1);
     }
 } 
 
@@ -210,13 +215,7 @@ int main() {
 
 
     // ============ ENTREE, liste de coordonnées x,y :
-    FFT_Point fft_data[NUM_FFT_POINTS] = { 
-        { 0, 12 }, { 1, 8 }, { 8, 23 }, { 9, 34 }, { 11, 28 },
-        { 13, 7 }, { 20, 41 }, { 21, 50 }, { 22, 47 }, { 27, 9 },
-        { 29, 14 }, { 30, 17 }, { 33, 27 }, { 39, 21 }, { 42, 19 },
-        { 45, 20 }, { 46, 22 }, { 54, 11 }, { 55, 20 }, { 61, 11 }, 
-        { 67, 7 }
-    }; 
+    FFT_Point *fft_data = get_fft_data();
     
     // ------------ PRE-SORTIE, matrice vga :
     RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]; 
@@ -229,32 +228,44 @@ int main() {
     // Initialisation du fond noir avec axes blancs
     initialize_vga_matrix(vga_matrix);
 
-    // Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
-    int adjusted_points[NUM_FFT_POINTS][2];
-    adjust_fft_points(fft_data, adjusted_points, freq_echantillonage);
-
-    // Ajoute les points FFT avec des colonnes les reliant à l'axe X
-    update_vga_display(vga_matrix,fft_data);
-
-    // Transformer notre matrice 2D en un tableau 1D pour la VGA
-    convert_matrix_to_buffer( vga_matrix, framebuffer);
 
     // ------------------- Affichage terminal -------------------
 
-    print_framebuffer_diagramme(framebuffer); //print à partir du buffer
+    //print_framebuffer_diagramme(framebuffer); //print à partir du buffer
     //print_framebuffer(framebuffer); //print à partir de la matrice
+    //display_vga_matrix_diagramme(vga_matrix); //print à partir de la matrice
 
-    printf("Test DMA\n");
 
-    // ============== DMA 
-    // Appel de la fonction pour démarrer le transfert DMA
-    // convertir un pixel RGB en 32 bits (9 bits pour RGB, le reste à 0)
-    /*
-    Bits 31-12    | Bits 11-8 | Bits 7-4 | Bits 3-0
-         (0)      |    R      |    G     |    B
-    */
-    int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
-    send_framebuffer_in_batches(framebuffer); // envoi en batches
+    // Boucle infinie qui envoi au DMA
+    while(1){
+
+        FFT_Point *fft_data = get_fft_data();
+
+        // Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
+        int adjusted_points[NUM_FFT_POINTS][2];
+        adjust_fft_points(fft_data, adjusted_points, freq_echantillonage);
+
+        // Ajoute les points FFT avec des colonnes les reliant à l'axe X
+        update_vga_display(vga_matrix,fft_data);
+
+        // Transformer notre matrice 2D en un tableau 1D pour la VGA
+        convert_matrix_to_buffer( vga_matrix, framebuffer);
+
+        printf("Envoi DMA\n");
+
+        // ============== DMA 
+        // Appel de la fonction pour démarrer le transfert DMA
+        // convertir un pixel RGB en 32 bits (9 bits pour RGB, le reste à 0)
+        /*
+        Bits 31-12    | Bits 11-8 | Bits 7-4 | Bits 3-0
+            (0)      |    R      |    G     |    B
+        */
+        int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
+        send_framebuffer_in_batches(framebuffer); // envoi en batches
+
+        sleep(1);
+
+    }
 
 
     return 0;
