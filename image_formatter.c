@@ -252,8 +252,16 @@ int main() {
     // Boucle infinie qui envoi au DMA
     while(1){
 
-        FFT_Point fft_data[NUM_FFT_POINTS];
-        load_fft_data_from_memory((uint32_t*)FFT_DATA_ADDRESS, fft_data); // cast necessaire
+        // FFT_Point fft_data[NUM_FFT_POINTS];
+        // load_fft_data_from_memory((uint32_t*)FFT_DATA_ADDRESS, fft_data); // cast necessaire
+
+        FFT_Point fft_data[NUM_FFT_POINTS] = {
+            { 0, 12 }, { 1, 8 }, { 8, 23 }, { 9, 34 }, { 11, 28 },
+            { 13, 7 }, { 20, 41 }, { 21, 50 }, { 22, 47 }, { 27, 9 },
+            { 29, 14 }, { 30, 17 }, { 33, 27 }, { 39, 21 }, { 42, 19 },
+            { 45, 20 }, { 46, 22 }, { 54, 11 }, { 55, 20 }, { 61, 11 }, 
+            { 67, 7 }
+        };
 
         // Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
         adjust_fft_points(fft_data, freq_echantillonage);

@@ -33,5 +33,5 @@
 // entrée à recup
 #define FFT_DATA_ADDRESS  0x20000000
 #define FFT_DATA_SIZE     1024*4 //(octets)
-#define NUM_FFT_POINTS    1024
+#define NUM_FFT_POINTS    21
 
