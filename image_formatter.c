@@ -195,17 +195,30 @@ uint32_t encode_rgb_to_32bit(RGB_Point pixel) {
     return encoded_pixel; 
 }
 
-// envoyer les données pixel par pixel, batches 32 bits
-void send_framebuffer_in_batches(RGB_Point * framebuffer) {
+void send_framebuffer_in_batches(RGB_Point *framebuffer) {
 
-    uint32_t batch[1];  // batch 32 bits
+    uint32_t batch[4];  // Batch de 32 bits pour 4 pixels
 
-    for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
-        batch[0] = encode_rgb_to_32bit(framebuffer[i]);
-        start_dma_transfer(batch, sizeof(batch));
-        sleep(1);
+    // Nombre total de pixels dans le framebuffer
+    int num_pixels = VGA_HEIGHT * VGA_WIDTH;
+
+    // Parcours du framebuffer en blocs de 4 pixels à la fois
+    for (int i = 0; i < num_pixels; i += 4) {
+        // Remplir le batch de 4 pixels
+        for (int j = 0; j < 4; j++) {
+            if (i + j < num_pixels) {  // Assurez-vous de ne pas dépasser la taille du framebuffer
+                batch[j] = encode_rgb_to_32bit(framebuffer[i + j]);
+            } else {
+                batch[j] = 0;  // Remplissage avec 0 pour les pixels excédentaires (si nécessaire)
+            }
+        }
+
+        // Envoi du batch via DMA
+        start_dma_transfer(batch, 4 * sizeof(uint32_t)); // 4 pixels = 4 * 4 bytes = 16 bytes
+        sleep(1);  // Temps d'attente entre les envois de batchs (à ajuster selon le système)
     }
-} 
+}
+
 
 // Fonction pour remplir un tableau de FFT_Point à partir de l'adresse mémoire
 void load_fft_data_from_memory(uint32_t* base_address, FFT_Point fft_data[NUM_FFT_POINTS]) {
