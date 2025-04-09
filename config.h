@@ -1,12 +1,9 @@
 // Parametres de l'affichage VGA si on veut le tracer
 
-#define VGA_WIDTH  80   // Largeur VGA (ex: 800)
-#define VGA_HEIGHT 60   // Hauteur VGA (ex: 600)
+#define VGA_WIDTH  800   // Largeur VGA (ex: 800)
+#define VGA_HEIGHT 600   // Hauteur VGA (ex: 600)
 
 #define MARGE 2  // Épaisseur de la bordure qui est modifiable ici
-
-
-#define NUM_FFT_POINTS 21  // Nombre de points FFT simulés
 
 
 // couleur de l'axe 
@@ -35,4 +32,6 @@
 
 // entrée à recup
 #define FFT_DATA_ADDRESS  0x20000000
-#define FFT_DATA_SIZE     21
+#define FFT_DATA_SIZE     1024*4 //(octets)
+#define NUM_FFT_POINTS    1024
+

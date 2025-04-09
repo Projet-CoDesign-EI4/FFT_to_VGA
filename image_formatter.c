@@ -208,6 +208,20 @@ void send_framebuffer_in_batches(RGB_Point * framebuffer) {
     }
 } 
 
+// Fonction pour remplir un tableau de FFT_Point à partir de l'adresse mémoire
+void load_fft_data_from_memory(uint32_t* base_address, FFT_Point fft_data[NUM_FFT_POINTS]) {
+
+    uint32_t* memory_ptr = base_address; // pointeur vers l'adresse mémoire où les données FFT sont stockées
+
+    // fft_data à partir de l'adresse mémoire
+    for (int i = 0; i < NUM_FFT_POINTS; i++) {
+        // 2 entiers de 2 octets (x et y) pour chaque FFT_Point
+        // x et y sont stockées sous 2 octets
+        fft_data[i].x = *((short*)(memory_ptr + i * 2));       // x (2 octets)
+        fft_data[i].y = *((short*)(memory_ptr + i * 2 + 1));   // y (2 octets)
+    }
+}
+
 
 // =============================== MAIN ===============================
 
@@ -239,11 +253,18 @@ int main() {
     // Boucle infinie qui envoi au DMA
     while(1){
 
-        FFT_Point *fft_data = get_fft_data();
+        FFT_Point fft_data[NUM_FFT_POINTS];
+        load_fft_data_from_memory((uint32_t*)FFT_DATA_ADDRESS, fft_data); // cast necessaire
+
+        // [DEBUG FUTUR] Afficher les données pour vérifier
+        for (int i = 0; i < NUM_FFT_POINTS; i++) {
+            printf("fft_data[%d] - x: %d, y: %d\n", i, fft_data[i].x, fft_data[i].y);
+        }
 
         // Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
         int adjusted_points[NUM_FFT_POINTS][2];
         adjust_fft_points(fft_data, adjusted_points, freq_echantillonage);
+
 
         // Ajoute les points FFT avec des colonnes les reliant à l'axe X
         update_vga_display(vga_matrix,fft_data);
