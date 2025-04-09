@@ -91,27 +91,37 @@ void print_vga_matrix(RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]) {
 Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
 */
 
-void adjust_fft_points(FFT_Point fft_data[NUM_FFT_POINTS], int adjusted_points[NUM_FFT_POINTS][2], int freq_echantillonnage) {
-    // Empêcher la division par zéro
+// Fonction qui ajuste les points FFT pour les adapter à l'écran VGA
+int** adjust_fft_points(FFT_Point fft_data[NUM_FFT_POINTS], int freq_echantillonnage) {
+    // Allouer dynamiquement le tableau de points ajustés
+    int** adjusted_points = malloc(NUM_FFT_POINTS * sizeof(int*));
+    for (int i = 0; i < NUM_FFT_POINTS; i++) {
+        adjusted_points[i] = malloc(2 * sizeof(int)); // Pour X et Y
+    }
+
+    // Empêcher la division par zéro et calcul du facteur de pixel pour la fréquence
     float pixel_per_frequency = (freq_echantillonnage < 1600) ? 1.0 : (float)freq_echantillonnage / 1600.0;
 
+    // Trouver les limites maximales de X et Y dans les données FFT
+    int max_x = 0, max_y = 0;
     for (int i = 0; i < NUM_FFT_POINTS; i++) {
-        // Calcul de la position en X sur l'axe des fréquences (axe X de 0 à 799)
-        int adjusted_x = (int)(fft_data[i].x / pixel_per_frequency);
-        
-        // Limite X à l'intervalle de 0 à 799 (puisque nous avons 800 pixels)
-        if (adjusted_x < 0) adjusted_x = 0;
-        if (adjusted_x >= VGA_WIDTH) adjusted_x = VGA_WIDTH - 1;
+        if (fft_data[i].x > max_x) max_x = fft_data[i].x;
+        if (fft_data[i].y > max_y) max_y = fft_data[i].y;
+    }
 
-        // La position Y peut rester la même, sauf si elle dépasse la hauteur de l'affichage
-        int adjusted_y = fft_data[i].y;
-        if (adjusted_y < 0) adjusted_y = 0;
-        if (adjusted_y >= VGA_HEIGHT) adjusted_y = VGA_HEIGHT - 1;
+    for (int i = 0; i < NUM_FFT_POINTS; i++) {
+        // Calcul de la position en X sur l'axe des fréquences (axe X de 0 à VGA_WIDTH - 1)
+        int adjusted_x = (int)((float)fft_data[i].x / max_x * (VGA_WIDTH - 1)); // Mise à l'échelle proportionnelle
+
+        // Calcul de la position en Y sur l'axe (axe Y de 0 à VGA_HEIGHT - 1)
+        int adjusted_y = (int)((float)fft_data[i].y / max_y * (VGA_HEIGHT - 1)); // Mise à l'échelle proportionnelle
 
         // Stockage du point ajusté dans le tableau
         adjusted_points[i][0] = adjusted_x;
         adjusted_points[i][1] = adjusted_y;
     }
+
+    return adjusted_points;  // Retourne le tableau ajusté
 }
 
 // lire la matrice en diagramme
@@ -234,7 +244,7 @@ int main() {
     // ------------ PRE-SORTIE, matrice vga :
     RGB_Point vga_matrix[VGA_HEIGHT][VGA_WIDTH]; 
 
-    // ============ SORTIE, buffer 1D pour afficher
+    // ============ SORTIE, buffer 1D pour afficher (décomposé à l'envoi)
     RGB_Point framebuffer[VGA_HEIGHT * VGA_WIDTH];
 
 
@@ -262,9 +272,7 @@ int main() {
         }
 
         // Reformater les données d'entrée en fonction de la frequence d'échantillonage pour s'adapter à l'affichage où l'axe x est de 800 pixels
-        int adjusted_points[NUM_FFT_POINTS][2];
-        adjust_fft_points(fft_data, adjusted_points, freq_echantillonage);
-
+        int** adjusted_points = adjust_fft_points(fft_data, freq_echantillonage);
 
         // Ajoute les points FFT avec des colonnes les reliant à l'axe X
         update_vga_display(vga_matrix,fft_data);

@@ -18,13 +18,13 @@
 #define FFT_COLOR_B 235
 // sky blue
 
-#define freq_echantillonage 1000 // à voir
+#define freq_echantillonage 1000
 
 
 // ============ Config des adresses DMA ===============
 
 // ou envoyer la sortie
-#define DMA_BASE_ADDR     0x40400000  // <==========================changer en fonction du mapping
+#define DMA_BASE_ADDR     0x40400000 
 #define DMA_MM2S_DMACR    (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x00))
 #define DMA_MM2S_DMASR    (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x04))
 #define DMA_MM2S_SA       (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x18))
