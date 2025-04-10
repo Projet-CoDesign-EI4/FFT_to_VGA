@@ -1,7 +1,7 @@
 // Parametres de l'affichage VGA si on veut le tracer
 
-#define VGA_WIDTH  800   // Largeur VGA (ex: 800)
-#define VGA_HEIGHT 600   // Hauteur VGA (ex: 600)
+#define VGA_WIDTH  80   // Largeur VGA (800)
+#define VGA_HEIGHT 60   // Hauteur VGA (600)
 
 #define MARGE 2  // Épaisseur de la bordure qui est modifiable ici
 

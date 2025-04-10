@@ -304,12 +304,14 @@ int main() {
         */
         int framebuffer_size = VGA_HEIGHT * VGA_WIDTH * sizeof(RGB_Point);
 
-        //send_framebuffer_in_batches(framebuffer); // envoi en batches
+        send_framebuffer_in_batches(framebuffer); // envoi en batches
 
-        int framebuffer_size = VGA_HEIGHT * VGA_WIDTH;
-        RGB_Point framebuffer_test[framebuffer_size];
-        fill_framebuffer_with_white(framebuffer_test);
-        send_framebuffer_in_batches(framebuffer_test); // envoi en batches
+
+        //test
+        // int framebuffer_size = VGA_HEIGHT * VGA_WIDTH;
+        // RGB_Point framebuffer_test[framebuffer_size];
+        // fill_framebuffer_with_white(framebuffer_test);
+        // send_framebuffer_in_batches(framebuffer_test); // envoi en batches
 
         sleep(1);
 
