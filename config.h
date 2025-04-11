@@ -18,7 +18,7 @@
 #define FFT_COLOR_B 235
 // sky blue
 
-#define freq_echantillonage 1000
+#define freq_echantillonage 100 000 000 // 100MHz
 
 
 // ============ Config des adresses DMA ===============
